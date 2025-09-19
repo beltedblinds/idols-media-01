@@ -16,7 +16,7 @@
   <ul id="fileList"></ul>
 
   <script>
-    fetch('idols-media-01/manifest.json')
+    fetch('https://raw.githubusercontent.com/beltedblinds/idols-media-01/refs/heads/main/manifest.json')
       .then(res => res.json())
       .then(data => {
         const ul = document.getElementById('fileList');
