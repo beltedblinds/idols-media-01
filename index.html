@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Idol Media Test</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
+    h1 { color: #ff4081; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Idols Media Manifest Test</h1>
+  <div id="status">Loading manifest...</div>
+  <ul id="fileList"></ul>
+
+  <script>
+    fetch('idols-media-01/manifest.json')
+      .then(res => res.json())
+      .then(data => {
+        const ul = document.getElementById('fileList');
+        document.getElementById('status').textContent = `Loaded ${data.length} entries`;
+        data.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item.name + ' (' + item.url + ')';
+          ul.appendChild(li);
+        });
+      })
+      .catch(err => {
+        document.getElementById('status').textContent = 'Failed to load manifest: ' + err;
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
