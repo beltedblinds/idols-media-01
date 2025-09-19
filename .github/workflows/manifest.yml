@@ -1,0 +1,54 @@
+name: Generate Manifest
+
+on:
+  push:
+    paths:
+      - '**.gif'
+      - '**.png'
+      - '**.jpg'
+      - '**.jpeg'
+      - '**.webp'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Generate manifest
+        run: |
+          cat <<'EOF' > generate-manifest.js
+          const fs = require("fs");
+          const path = require("path");
+          function walk(dir, base = "") {
+            let out = [];
+            fs.readdirSync(dir, { withFileTypes: true }).forEach(ent => {
+              const full = path.join(dir, ent.name);
+              const rel = base ? base + "/" + ent.name : ent.name;
+              if (ent.isDirectory()) {
+                out = out.concat(walk(full, rel));
+              } else if (/\.(gif|png|jpe?g|webp)$/i.test(ent.name)) {
+                out.push({ path: rel, name: ent.name, category: base.split("/")[0] || "Uncategorized" });
+              }
+            });
+            return out;
+          }
+          const manifest = walk(process.cwd());
+          fs.writeFileSync("manifest.json", JSON.stringify(manifest, null, 2));
+          console.log("manifest.json created with", manifest.length, "entries");
+          EOF
+
+          node generate-manifest.js
+
+      - name: Commit manifest
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add manifest.json
+          git commit -m "Auto-update manifest" || echo "No changes"
+          git push
