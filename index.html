@@ -2,33 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Idol Media Test</title>
-  <style>
-    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
-    h1 { color: #ff4081; }
-    ul { list-style: none; padding: 0; }
-    li { margin-bottom: 5px; }
-  </style>
+  <title>Idols Media Manifest Test</title>
 </head>
 <body>
   <h1>Idols Media Manifest Test</h1>
-  <div id="status">Loading manifest...</div>
-  <ul id="fileList"></ul>
+  <div id="output">Loading manifest...</div>
 
   <script>
-    fetch('https://raw.githubusercontent.com/beltedblinds/idols-media-01/refs/heads/main/manifest.json')
-      .then(res => res.json())
+    fetch('manifest.json')
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+      })
       .then(data => {
-        const ul = document.getElementById('fileList');
-        document.getElementById('status').textContent = `Loaded ${data.length} entries`;
-        data.forEach(item => {
+        const output = document.getElementById('output');
+        output.innerHTML = `<p>Manifest loaded successfully! Total entries: ${data.length}</p>`;
+        // Optional: show first 5 items
+        const list = document.createElement('ul');
+        data.slice(0,5).forEach(item => {
           const li = document.createElement('li');
-          li.textContent = item.name + ' (' + item.url + ')';
-          ul.appendChild(li);
+          li.textContent = `${item.name} (${item.url})`;
+          list.appendChild(li);
         });
+        output.appendChild(list);
       })
       .catch(err => {
-        document.getElementById('status').textContent = 'Failed to load manifest: ' + err;
+        document.getElementById('output').textContent = 'Failed to load manifest: ' + err;
         console.error(err);
       });
   </script>
