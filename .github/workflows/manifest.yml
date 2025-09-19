@@ -8,6 +8,7 @@ on:
       - '**.jpg'
       - '**.jpeg'
       - '**.webp'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,6 +26,7 @@ jobs:
           cat <<'EOF' > generate-manifest.js
           const fs = require("fs");
           const path = require("path");
+
           function walk(dir, base = "") {
             let out = [];
             fs.readdirSync(dir, { withFileTypes: true }).forEach(ent => {
@@ -33,11 +35,16 @@ jobs:
               if (ent.isDirectory()) {
                 out = out.concat(walk(full, rel));
               } else if (/\.(gif|png|jpe?g|webp)$/i.test(ent.name)) {
-                out.push({ path: rel, name: ent.name, category: base.split("/")[0] || "Uncategorized" });
+                out.push({ 
+                  path: rel, 
+                  name: ent.name, 
+                  category: base.split("/")[0] || "Uncategorized" 
+                });
               }
             });
             return out;
           }
+
           const manifest = walk(process.cwd());
           fs.writeFileSync("manifest.json", JSON.stringify(manifest, null, 2));
           console.log("manifest.json created with", manifest.length, "entries");
